@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NavBar } from '@/components/NavBar';
@@ -26,7 +25,7 @@ const Signup = () => {
         description: "Welcome to LearnHub! Your learning journey begins now.",
         duration: 3000,
       });
-      navigate('/dashboard');
+      navigate('/onboarding');
     } catch (err) {
       setError((err as Error).message || 'Sign up failed. Please try again.');
     } finally {

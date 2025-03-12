@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NavBar } from '@/components/NavBar';
@@ -20,13 +19,18 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      await loginUser(email, password);
+      const user = await loginUser(email, password);
       toast({
         title: "Logged in successfully",
         description: "Welcome back to LearnHub!",
         duration: 3000,
       });
-      navigate('/dashboard');
+      
+      if (!user.hasCompletedOnboarding) {
+        navigate('/onboarding');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError((err as Error).message || 'Login failed. Please try again.');
     } finally {

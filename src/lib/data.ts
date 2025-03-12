@@ -178,6 +178,12 @@ export interface User {
   points: number;
   completedResources: string[];
   inProgressResources: string[];
+  hasCompletedOnboarding: boolean;
+  learningGoals: string[];
+  preferredCategories: string[];
+  skillLevel: 'beginner' | 'intermediate' | 'advanced';
+  weeklyHours: number;
+  preferredFormats: string[];
 }
 
 let currentUser: User | null = null;
@@ -204,7 +210,13 @@ export const loginUser = (email: string, password: string): Promise<User> => {
           name: email.split('@')[0],
           points: 120,
           completedResources: ['1', '3'],
-          inProgressResources: ['2', '4']
+          inProgressResources: ['2', '4'],
+          hasCompletedOnboarding: false,
+          learningGoals: [],
+          preferredCategories: [],
+          skillLevel: 'beginner',
+          weeklyHours: 5,
+          preferredFormats: []
         };
         currentUser = user;
         localStorage.setItem('currentUser', JSON.stringify(user));
@@ -226,7 +238,13 @@ export const registerUser = (email: string, password: string): Promise<User> => 
           name: email.split('@')[0],
           points: 0,
           completedResources: [],
-          inProgressResources: []
+          inProgressResources: [],
+          hasCompletedOnboarding: false,
+          learningGoals: [],
+          preferredCategories: [],
+          skillLevel: 'beginner',
+          weeklyHours: 5,
+          preferredFormats: []
         };
         currentUser = user;
         localStorage.setItem('currentUser', JSON.stringify(user));
@@ -276,4 +294,46 @@ export const markResourceInProgress = (resourceId: string): void => {
     
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
   }
+};
+
+export const saveUserPreferences = (preferences: Partial<User>): void => {
+  if (!currentUser) return;
+  
+  currentUser = { ...currentUser, ...preferences, hasCompletedOnboarding: true };
+  localStorage.setItem('currentUser', JSON.stringify(currentUser));
+};
+
+export const getPersonalizedResources = (): Resource[] => {
+  if (!currentUser || !currentUser.hasCompletedOnboarding) {
+    return resources.filter(r => r.featured);
+  }
+  
+  let personalizedResources = [...resources];
+  
+  if (currentUser.preferredCategories.length > 0) {
+    personalizedResources = personalizedResources.filter(
+      resource => currentUser!.preferredCategories.includes(resource.category)
+    );
+  }
+  
+  if (personalizedResources.length > 5) {
+    if (currentUser.skillLevel === 'beginner') {
+      personalizedResources.sort((a, b) => 
+        parseInt(a.duration) < parseInt(b.duration) ? -1 : 1
+      );
+    } else if (currentUser.skillLevel === 'advanced') {
+      personalizedResources.sort((a, b) => 
+        parseInt(a.duration) > parseInt(b.duration) ? -1 : 1
+      );
+    }
+  }
+  
+  if (personalizedResources.length < 3) {
+    const featuredResources = resources.filter(r => 
+      r.featured && !personalizedResources.includes(r)
+    );
+    personalizedResources = [...personalizedResources, ...featuredResources.slice(0, 3)];
+  }
+  
+  return personalizedResources;
 };

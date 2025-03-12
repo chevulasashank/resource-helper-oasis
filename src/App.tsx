@@ -14,6 +14,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import HowItWorks from "./pages/HowItWorks";
 import SubmitResource from "./pages/SubmitResource";
+import Onboarding from "./pages/Onboarding";
 import { initializeUserFromStorage } from "./lib/data";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/submit-resource" element={<SubmitResource />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

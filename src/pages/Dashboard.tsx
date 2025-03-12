@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NavBar } from '@/components/NavBar';
 import { ResourceCard } from '@/components/ResourceCard';
-import { getCurrentUser, resources, logoutUser, initializeUserFromStorage } from '@/lib/data';
+import { getCurrentUser, resources, logoutUser, initializeUserFromStorage, getPersonalizedResources } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { LayoutDashboard, CheckCheck, Clock, BookOpen, LogOut } from 'lucide-react';
+import { LayoutDashboard, CheckCheck, Clock, BookOpen, LogOut, Sparkles } from 'lucide-react';
 
 const Dashboard = () => {
   const [user, setUser] = useState(getCurrentUser());
+  const [personalizedResources, setPersonalizedResources] = useState<typeof resources>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -22,7 +23,17 @@ const Dashboard = () => {
       return;
     }
     
+    // Check if onboarding is complete
+    if (!currentUser.hasCompletedOnboarding) {
+      navigate('/onboarding');
+      return;
+    }
+    
     setUser(currentUser);
+    
+    // Get personalized resources
+    const personalized = getPersonalizedResources();
+    setPersonalizedResources(personalized);
   }, [navigate]);
   
   const completedResources = resources.filter(res => 
@@ -135,6 +146,26 @@ const Dashboard = () => {
             </div>
           </div>
           
+          {personalizedResources.length > 0 && (
+            <div className="mb-10 animate-fade-in">
+              <h2 className="text-2xl font-bold mb-6 flex items-center">
+                <Sparkles className="mr-2 h-5 w-5 text-purple-600" />
+                Recommended for You
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {personalizedResources.slice(0, 3).map((resource, index) => (
+                  <div 
+                    key={resource.id} 
+                    className="animate-scale-in" 
+                    style={{ animationDelay: `${0.05 * index}s` }}
+                  >
+                    <ResourceCard {...resource} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
           {inProgressResources.length > 0 && (
             <div className="mb-10 animate-fade-in">
               <h2 className="text-2xl font-bold mb-6 flex items-center">
@@ -175,7 +206,7 @@ const Dashboard = () => {
             </div>
           )}
           
-          {completedResources.length === 0 && inProgressResources.length === 0 && (
+          {completedResources.length === 0 && inProgressResources.length === 0 && personalizedResources.length === 0 && (
             <div className="text-center py-16 animate-fade-in">
               <div className="mb-4 text-gray-400">
                 <BookOpen className="w-16 h-16 mx-auto" />
