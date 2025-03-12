@@ -5,6 +5,8 @@ import { SearchBar } from '@/components/SearchBar';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { ResourceCard } from '@/components/ResourceCard';
 import { resources, categories } from '@/lib/data';
+import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 
 const Directory = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -37,11 +39,21 @@ const Directory = () => {
       
       <main className="pt-24">
         <div className="container px-4 mx-auto max-w-7xl">
-          <div className="mb-10 animate-fade-in">
-            <h1 className="text-3xl font-bold mb-2">Resource Directory</h1>
-            <p className="text-gray-500">
-              Browse our curated collection of free learning resources
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10 animate-fade-in">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Resource Directory</h1>
+              <p className="text-gray-500">
+                Browse our curated collection of free learning resources
+              </p>
+            </div>
+            
+            <Link 
+              to="/submit-resource"
+              className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors self-start sm:self-center"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Submit Resource
+            </Link>
           </div>
           
           <div className="mb-8 animate-slide-in">

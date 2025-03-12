@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, LogIn, User } from 'lucide-react';
+import { Search, LogIn, User, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getCurrentUser } from '@/lib/data';
 
@@ -54,6 +54,7 @@ export function NavBar() {
             { path: '/', label: 'Home' },
             { path: '/directory', label: 'Directory' },
             { path: '/how-it-works', label: 'How It Works' },
+            { path: '/submit-resource', label: 'Submit Resource' },
             ...(user ? [{ path: '/dashboard', label: 'My Learning' }] : []),
           ].map((item) => (
             <Link
