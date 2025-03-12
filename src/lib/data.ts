@@ -1,4 +1,3 @@
-
 export const categories = [
   'JavaScript',
   'Python',
@@ -172,6 +171,109 @@ export const resources: Resource[] = [
   }
 ];
 
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  points: number;
+  completedResources: string[];
+  inProgressResources: string[];
+}
+
+let currentUser: User | null = null;
+
 export const getUserPoints = (): number => {
-  return 120; // Mock points - in a real app, this would come from a user profile
+  return currentUser?.points || 120;
+};
+
+export const getCurrentUser = (): User | null => {
+  return currentUser;
+};
+
+export const setCurrentUser = (user: User | null): void => {
+  currentUser = user;
+};
+
+export const loginUser = (email: string, password: string): Promise<User> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (email && email.includes('@') && password.length > 3) {
+        const user: User = {
+          id: '1',
+          email: email,
+          name: email.split('@')[0],
+          points: 120,
+          completedResources: ['1', '3'],
+          inProgressResources: ['2', '4']
+        };
+        currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        resolve(user);
+      } else {
+        reject(new Error('Invalid email or password'));
+      }
+    }, 800);
+  });
+};
+
+export const registerUser = (email: string, password: string): Promise<User> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (email && email.includes('@') && password.length > 5) {
+        const user: User = {
+          id: Date.now().toString(),
+          email: email,
+          name: email.split('@')[0],
+          points: 0,
+          completedResources: [],
+          inProgressResources: []
+        };
+        currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        resolve(user);
+      } else {
+        reject(new Error('Invalid email or password. Password must be at least 6 characters.'));
+      }
+    }, 800);
+  });
+};
+
+export const logoutUser = (): void => {
+  currentUser = null;
+  localStorage.removeItem('currentUser');
+};
+
+export const initializeUserFromStorage = (): void => {
+  const storedUser = localStorage.getItem('currentUser');
+  if (storedUser) {
+    currentUser = JSON.parse(storedUser);
+  }
+};
+
+export const markResourceCompleted = (resourceId: string): void => {
+  if (!currentUser) return;
+  
+  currentUser.inProgressResources = currentUser.inProgressResources.filter(id => id !== resourceId);
+  
+  if (!currentUser.completedResources.includes(resourceId)) {
+    currentUser.completedResources.push(resourceId);
+    
+    const resource = resources.find(r => r.id === resourceId);
+    if (resource) {
+      currentUser.points += resource.points;
+    }
+    
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  }
+};
+
+export const markResourceInProgress = (resourceId: string): void => {
+  if (!currentUser) return;
+  
+  if (!currentUser.inProgressResources.includes(resourceId) && 
+      !currentUser.completedResources.includes(resourceId)) {
+    currentUser.inProgressResources.push(resourceId);
+    
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  }
 };

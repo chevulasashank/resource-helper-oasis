@@ -2,15 +2,20 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { NavBar } from '@/components/NavBar';
-import { resources } from '@/lib/data';
-import { Star, ArrowLeft, Clock, ExternalLink, Bookmark } from 'lucide-react';
+import { resources, markResourceCompleted, markResourceInProgress, getCurrentUser } from '@/lib/data';
+import { Star, ArrowLeft, Clock, ExternalLink, Bookmark, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ResourceCard } from '@/components/ResourceCard';
 
 const Resource = () => {
   const { id } = useParams<{ id: string }>();
   const [resource, setResource] = useState(resources.find(r => r.id === id));
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(getCurrentUser());
   const { toast } = useToast();
+  
+  const isCompleted = user?.completedResources.includes(id || '');
+  const isInProgress = user?.inProgressResources.includes(id || '');
   
   useEffect(() => {
     // Simulate loading
@@ -24,9 +29,29 @@ const Resource = () => {
   useEffect(() => {
     // Scroll to top when component mounts
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Auto-mark as in progress when viewing a resource (if logged in and not already marked)
+    if (user && id && !isCompleted && !isInProgress) {
+      markResourceInProgress(id);
+      setUser(getCurrentUser());
+    }
+  }, [id, isCompleted, isInProgress, user]);
   
   const handleMarkAsCompleted = () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to track your progress",
+        duration: 3000,
+      });
+      return;
+    }
+    
+    if (id) {
+      markResourceCompleted(id);
+      setUser(getCurrentUser());
+    }
+    
     toast({
       title: "Resource Completed",
       description: `You've earned ${resource?.points} points!`,
@@ -122,13 +147,21 @@ const Resource = () => {
               <ExternalLink className="w-4 h-4" />
               Open Original
             </a>
-            <button 
-              onClick={handleMarkAsCompleted}
-              className="flex-1 px-6 py-3 rounded-lg border border-gray-200 bg-white text-gray-700 font-medium transition-all duration-300 hover:bg-gray-50 flex items-center justify-center gap-2"
-            >
-              <Bookmark className="w-4 h-4" />
-              Mark as Completed
-            </button>
+            
+            {isCompleted ? (
+              <div className="flex-1 px-6 py-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-medium flex items-center justify-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                Completed
+              </div>
+            ) : (
+              <button 
+                onClick={handleMarkAsCompleted}
+                className="flex-1 px-6 py-3 rounded-lg border border-gray-200 bg-white text-gray-700 font-medium transition-all duration-300 hover:bg-gray-50 flex items-center justify-center gap-2"
+              >
+                <Bookmark className="w-4 h-4" />
+                Mark as Completed
+              </button>
+            )}
           </div>
           
           {resource.content && (

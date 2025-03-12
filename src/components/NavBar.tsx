@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Search, LogIn, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getCurrentUser } from '@/lib/data';
 
 export function NavBar() {
   const [scrolled, setScrolled] = useState(false);
+  const [user, setUser] = useState(getCurrentUser());
   const location = useLocation();
   
   useEffect(() => {
@@ -21,6 +23,11 @@ export function NavBar() {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [scrolled]);
+
+  useEffect(() => {
+    // Update user state when navigating between pages
+    setUser(getCurrentUser());
+  }, [location.pathname]);
 
   return (
     <nav 
@@ -46,6 +53,7 @@ export function NavBar() {
           {[
             { path: '/', label: 'Home' },
             { path: '/directory', label: 'Directory' },
+            ...(user ? [{ path: '/dashboard', label: 'My Learning' }] : []),
           ].map((item) => (
             <Link
               key={item.path}
@@ -72,10 +80,26 @@ export function NavBar() {
           >
             <Search className="w-5 h-5" />
           </button>
-          <div className="glass py-1 px-3 rounded-full text-xs font-medium flex items-center space-x-1">
-            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-            <span>120 points</span>
-          </div>
+          
+          {user ? (
+            <Link 
+              to="/dashboard" 
+              className="glass py-1 px-3 rounded-full text-xs font-medium flex items-center space-x-2"
+            >
+              <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                <User className="w-3 h-3" />
+              </div>
+              <span>{user.points} points</span>
+            </Link>
+          ) : (
+            <Link 
+              to="/login" 
+              className="flex items-center space-x-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Login</span>
+            </Link>
+          )}
         </div>
       </div>
     </nav>
