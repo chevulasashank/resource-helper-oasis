@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import HowItWorks from "./pages/HowItWorks";
 import { initializeUserFromStorage } from "./lib/data";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

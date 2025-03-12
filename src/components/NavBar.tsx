@@ -53,6 +53,7 @@ export function NavBar() {
           {[
             { path: '/', label: 'Home' },
             { path: '/directory', label: 'Directory' },
+            { path: '/how-it-works', label: 'How It Works' },
             ...(user ? [{ path: '/dashboard', label: 'My Learning' }] : []),
           ].map((item) => (
             <Link
