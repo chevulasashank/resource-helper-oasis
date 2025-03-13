@@ -5,11 +5,28 @@ import { NavBar } from '@/components/NavBar';
 import { ResourceCard } from '@/components/ResourceCard';
 import { getCurrentUser, resources, logoutUser, initializeUserFromStorage, getPersonalizedResources } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { LayoutDashboard, CheckCheck, Clock, BookOpen, LogOut, Sparkles } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  CheckCheck, 
+  Clock, 
+  BookOpen, 
+  LogOut, 
+  Sparkles,
+  Flame,
+  Target,
+  Calendar,
+  ArrowRight,
+  Lock
+} from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 
 const Dashboard = () => {
   const [user, setUser] = useState(getCurrentUser());
   const [personalizedResources, setPersonalizedResources] = useState<typeof resources>([]);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [lastActive, setLastActive] = useState<Date | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -34,6 +51,37 @@ const Dashboard = () => {
     // Get personalized resources
     const personalized = getPersonalizedResources();
     setPersonalizedResources(personalized);
+
+    // Calculate streak (mock data for now)
+    const storedStreak = localStorage.getItem('userStreak');
+    const storedLastActive = localStorage.getItem('lastActiveDate');
+    
+    if (storedStreak && storedLastActive) {
+      const streak = parseInt(storedStreak);
+      const lastDate = new Date(storedLastActive);
+      const today = new Date();
+      
+      // Check if user was active yesterday or today
+      const dayDifference = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 3600 * 24));
+      
+      if (dayDifference <= 1) {
+        setCurrentStreak(streak);
+        setLastActive(lastDate);
+      } else {
+        // Reset streak if more than 1 day has passed
+        localStorage.setItem('userStreak', '1');
+        localStorage.setItem('lastActiveDate', today.toISOString());
+        setCurrentStreak(1);
+        setLastActive(today);
+      }
+    } else {
+      // Initialize streak
+      const today = new Date();
+      localStorage.setItem('userStreak', '1');
+      localStorage.setItem('lastActiveDate', today.toISOString());
+      setCurrentStreak(1);
+      setLastActive(today);
+    }
   }, [navigate]);
   
   const completedResources = resources.filter(res => 
@@ -43,6 +91,10 @@ const Dashboard = () => {
   const inProgressResources = resources.filter(res => 
     user?.inProgressResources.includes(res.id)
   );
+
+  const startFocusMode = (resourceId: string) => {
+    navigate(`/focus/${resourceId}`);
+  };
   
   const handleLogout = () => {
     logoutUser();
@@ -57,6 +109,10 @@ const Dashboard = () => {
   if (!user) {
     return null; // Will redirect in the useEffect
   }
+
+  // Calculate progress percentage
+  const totalResources = resources.length;
+  const completedPercentage = Math.round((completedResources.length / totalResources) * 100);
   
   return (
     <div className="min-h-screen pb-20">
@@ -84,7 +140,7 @@ const Dashboard = () => {
             </button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
             <div className="glass p-6 rounded-xl animate-scale-in" style={{ animationDelay: '0.1s' }}>
               <div className="flex items-center mb-4">
                 <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
@@ -95,12 +151,7 @@ const Dashboard = () => {
                   <p className="text-2xl font-bold">{user.points}</p>
                 </div>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-blue-600 rounded-full" 
-                  style={{ width: `${Math.min((user.points / 500) * 100, 100)}%` }}
-                ></div>
-              </div>
+              <Progress value={(user.points / 500) * 100} className="h-2" />
               <p className="mt-2 text-xs text-gray-500">
                 {500 - user.points} points until next level
               </p>
@@ -116,14 +167,9 @@ const Dashboard = () => {
                   <p className="text-2xl font-bold">{completedResources.length}</p>
                 </div>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-green-600 rounded-full" 
-                  style={{ width: `${(completedResources.length / resources.length) * 100}%` }}
-                ></div>
-              </div>
+              <Progress value={completedPercentage} className="h-2" />
               <p className="mt-2 text-xs text-gray-500">
-                {((completedResources.length / resources.length) * 100).toFixed(0)}% of all resources
+                {completedPercentage}% of all resources
               </p>
             </div>
             
@@ -144,85 +190,179 @@ const Dashboard = () => {
                 Explore more resources
               </Link>
             </div>
+
+            <div className="glass p-6 rounded-xl animate-scale-in" style={{ animationDelay: '0.4s' }}>
+              <div className="flex items-center mb-4">
+                <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 mr-3">
+                  <Flame className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-medium">Current Streak</h3>
+                  <p className="text-2xl font-bold">{currentStreak} days</p>
+                </div>
+              </div>
+              <div className="flex justify-between mt-2">
+                {[...Array(7)].map((_, index) => (
+                  <div 
+                    key={index} 
+                    className={`h-6 w-6 rounded-full flex items-center justify-center text-xs ${
+                      index < currentStreak % 7 ? 'bg-red-500 text-white' : 'bg-gray-200'
+                    }`}
+                  >
+                    {index + 1}
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                Last active: {lastActive ? new Date(lastActive).toLocaleDateString() : 'Today'}
+              </p>
+            </div>
+          </div>
+
+          <div className="mb-10 animate-fade-in">
+            <h2 className="text-2xl font-bold mb-6 flex items-center">
+              <Target className="mr-2 h-5 w-5 text-blue-600" />
+              Your Learning Plan
+            </h2>
+            
+            <div className="glass rounded-xl p-6 mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-medium text-lg">Weekly Learning Goals</h3>
+                  <p className="text-gray-500 text-sm">Based on your preferences ({user.weeklyHours} hours/week)</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium">Progress this week</p>
+                  <p className="text-lg font-bold text-blue-600">2/{user.weeklyHours} hours</p>
+                </div>
+              </div>
+              
+              <Progress value={(2 / user.weeklyHours) * 100} className="h-2 mb-4" />
+              
+              <div className="grid grid-cols-7 gap-2 mb-4">
+                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
+                  <div key={index} className="text-center">
+                    <div className="text-xs text-gray-500">{day}</div>
+                    <div className={`h-8 w-8 mx-auto rounded-full flex items-center justify-center text-xs ${
+                      index < 2 ? 'bg-green-100 text-green-600' : 'bg-gray-100'
+                    }`}>
+                      {index < 2 ? <CheckCheck className="h-4 w-4" /> : ''}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="text-right">
+                <Link 
+                  to="/calendar" 
+                  className="text-sm text-blue-600 hover:text-blue-700 transition-colors flex items-center justify-end"
+                >
+                  <Calendar className="h-4 w-4 mr-1" />
+                  View full calendar
+                </Link>
+              </div>
+            </div>
           </div>
           
-          {personalizedResources.length > 0 && (
-            <div className="mb-10 animate-fade-in">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <Sparkles className="mr-2 h-5 w-5 text-purple-600" />
-                Recommended for You
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {personalizedResources.slice(0, 3).map((resource, index) => (
-                  <div 
-                    key={resource.id} 
-                    className="animate-scale-in" 
-                    style={{ animationDelay: `${0.05 * index}s` }}
+          <Tabs defaultValue="recommended" className="mb-10 animate-fade-in">
+            <TabsList className="mb-6">
+              <TabsTrigger value="recommended">Recommended</TabsTrigger>
+              <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+              <TabsTrigger value="completed">Completed</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="recommended">
+              {personalizedResources.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {personalizedResources.slice(0, 6).map((resource, index) => (
+                    <div 
+                      key={resource.id} 
+                      className="animate-scale-in relative" 
+                      style={{ animationDelay: `${0.05 * index}s` }}
+                    >
+                      <ResourceCard {...resource} />
+                      <Button 
+                        onClick={() => startFocusMode(resource.id)}
+                        className="mt-2 w-full flex items-center justify-center"
+                      >
+                        <Lock className="mr-2 h-4 w-4" />
+                        Start Focus Mode
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <Sparkles className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-xl font-medium mb-2">No recommendations yet</h3>
+                  <p className="text-gray-500 mb-6">
+                    Complete your profile preferences to get personalized recommendations
+                  </p>
+                </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="in-progress">
+              {inProgressResources.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {inProgressResources.map((resource, index) => (
+                    <div 
+                      key={resource.id} 
+                      className="animate-scale-in relative"
+                      style={{ animationDelay: `${0.05 * index}s` }}
+                    >
+                      <ResourceCard {...resource} />
+                      <Button 
+                        onClick={() => startFocusMode(resource.id)}
+                        className="mt-2 w-full flex items-center justify-center"
+                      >
+                        <Lock className="mr-2 h-4 w-4" />
+                        Continue in Focus Mode
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <Clock className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-xl font-medium mb-2">No in-progress resources</h3>
+                  <p className="text-gray-500 mb-6">
+                    Start learning by marking resources as "In Progress"
+                  </p>
+                  <Link
+                    to="/directory"
+                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
-                    <ResourceCard {...resource} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {inProgressResources.length > 0 && (
-            <div className="mb-10 animate-fade-in">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <Clock className="mr-2 h-5 w-5 text-yellow-600" />
-                Continue Learning
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {inProgressResources.map((resource, index) => (
-                  <div 
-                    key={resource.id} 
-                    className="animate-scale-in" 
-                    style={{ animationDelay: `${0.05 * index}s` }}
-                  >
-                    <ResourceCard {...resource} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {completedResources.length > 0 && (
-            <div className="animate-fade-in">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <CheckCheck className="mr-2 h-5 w-5 text-green-600" />
-                Completed Resources
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {completedResources.map((resource, index) => (
-                  <div 
-                    key={resource.id} 
-                    className="animate-scale-in" 
-                    style={{ animationDelay: `${0.05 * index}s` }}
-                  >
-                    <ResourceCard {...resource} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {completedResources.length === 0 && inProgressResources.length === 0 && personalizedResources.length === 0 && (
-            <div className="text-center py-16 animate-fade-in">
-              <div className="mb-4 text-gray-400">
-                <BookOpen className="w-16 h-16 mx-auto" />
-              </div>
-              <h3 className="text-xl font-medium mb-2">No resources yet</h3>
-              <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                Start exploring our directory and begin your learning journey by marking resources as "In Progress" or "Completed".
-              </p>
-              <Link
-                to="/directory"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-block"
-              >
-                Browse Resources
-              </Link>
-            </div>
-          )}
+                    Browse Resources <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="completed">
+              {completedResources.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {completedResources.map((resource, index) => (
+                    <div 
+                      key={resource.id} 
+                      className="animate-scale-in"
+                      style={{ animationDelay: `${0.05 * index}s` }}
+                    >
+                      <ResourceCard {...resource} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <CheckCheck className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-xl font-medium mb-2">No completed resources yet</h3>
+                  <p className="text-gray-500 mb-6">
+                    Mark resources as completed to track your progress
+                  </p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
