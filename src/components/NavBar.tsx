@@ -50,29 +50,54 @@ export function NavBar() {
         </Link>
         
         <div className="hidden sm:flex items-center space-x-8">
-          {[
-            { path: '/', label: 'Home' },
-            { path: '/directory', label: 'Directory' },
-            { path: '/how-it-works', label: 'How It Works' },
-            { path: '/submit-resource', label: 'Submit Resource' },
-            ...(user ? [{ path: '/dashboard', label: 'My Learning' }] : []),
-          ].map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "relative text-sm font-medium transition-colors hover:text-blue-600 py-1",
-                location.pathname === item.path 
-                  ? "text-blue-600" 
-                  : "text-gray-800"
-              )}
-            >
-              {item.label}
-              {location.pathname === item.path && (
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 animate-scale-in" />
-              )}
-            </Link>
-          ))}
+          {user ? (
+            // Navigation links for logged-in users
+            [
+              { path: '/directory', label: 'Directory' },
+              { path: '/submit-resource', label: 'Submit Resource' },
+              { path: '/dashboard', label: 'My Learning' },
+            ].map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "relative text-sm font-medium transition-colors hover:text-blue-600 py-1",
+                  location.pathname === item.path 
+                    ? "text-blue-600" 
+                    : "text-gray-800"
+                )}
+              >
+                {item.label}
+                {location.pathname === item.path && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 animate-scale-in" />
+                )}
+              </Link>
+            ))
+          ) : (
+            // Navigation links for non-logged-in users
+            [
+              { path: '/', label: 'Home' },
+              { path: '/directory', label: 'Directory' },
+              { path: '/how-it-works', label: 'How It Works' },
+              { path: '/submit-resource', label: 'Submit Resource' },
+            ].map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "relative text-sm font-medium transition-colors hover:text-blue-600 py-1",
+                  location.pathname === item.path 
+                    ? "text-blue-600" 
+                    : "text-gray-800"
+                )}
+              >
+                {item.label}
+                {location.pathname === item.path && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 animate-scale-in" />
+                )}
+              </Link>
+            ))
+          )}
         </div>
         
         <div className="flex items-center space-x-4">
