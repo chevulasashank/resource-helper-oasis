@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NavBar } from '@/components/NavBar';
@@ -29,6 +30,7 @@ const Login = () => {
       if (!user.hasCompletedOnboarding) {
         navigate('/onboarding');
       } else {
+        // Redirect to dashboard but allow navigation to other pages
         navigate('/dashboard');
       }
     } catch (err) {

@@ -84,15 +84,17 @@ export function NavBar() {
           </button>
           
           {user ? (
-            <Link 
-              to="/dashboard" 
-              className="glass py-1 px-3 rounded-full text-xs font-medium flex items-center space-x-2"
-            >
-              <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                <User className="w-3 h-3" />
-              </div>
-              <span>{user.points} points</span>
-            </Link>
+            <div className="flex items-center space-x-3">
+              <Link 
+                to="/dashboard" 
+                className="glass py-1 px-3 rounded-full text-xs font-medium flex items-center space-x-2"
+              >
+                <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                  <User className="w-3 h-3" />
+                </div>
+                <span>{user.points} points</span>
+              </Link>
+            </div>
           ) : (
             <Link 
               to="/login" 
