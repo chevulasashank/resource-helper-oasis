@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { NavBar } from '@/components/NavBar';
 import { resources, markResourceCompleted, markResourceInProgress, getCurrentUser } from '@/lib/data';
-import { Star, ArrowLeft, Clock, ExternalLink, Bookmark, CheckCircle } from 'lucide-react';
+import { Star, ArrowLeft, Clock, ExternalLink, Bookmark, CheckCircle, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ResourceCard } from '@/components/ResourceCard';
 
@@ -147,6 +147,14 @@ const Resource = () => {
               <ExternalLink className="w-4 h-4" />
               Open Original
             </a>
+            
+            <Link 
+              to={`/focus/${resource.id}`}
+              className="flex-1 px-6 py-3 rounded-lg bg-purple-600 text-white font-medium transition-all duration-300 hover:bg-purple-700 text-center shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+            >
+              <Lock className="w-4 h-4" />
+              Start Focus Mode
+            </Link>
             
             {isCompleted ? (
               <div className="flex-1 px-6 py-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-medium flex items-center justify-center gap-2">

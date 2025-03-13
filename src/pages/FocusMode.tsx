@@ -18,7 +18,10 @@ import {
   Minimize,
   Play,
   MessageCircle,
-  PauseCircle
+  PauseCircle,
+  FileText,
+  Video,
+  Image
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -40,7 +43,23 @@ const FocusMode = () => {
   const [showSetupScreen, setShowSetupScreen] = useState(true);
   const [question, setQuestion] = useState('');
   const [isAskingQuestion, setIsAskingQuestion] = useState(false);
+  const [resourceType, setResourceType] = useState<'video' | 'article' | 'image' | 'other'>('video');
   const videoRef = useRef<HTMLIFrameElement>(null);
+  
+  // Determine resource type
+  useEffect(() => {
+    if (!resource) return;
+    
+    if (resource.url && (resource.url.includes('youtube') || resource.url.includes('vimeo'))) {
+      setResourceType('video');
+    } else if (resource.content && resource.content.length > 200) {
+      setResourceType('article');
+    } else if (resource.thumbnail && !resource.url) {
+      setResourceType('image');
+    } else {
+      setResourceType('other');
+    }
+  }, [resource]);
   
   // Set up focus mode effects
   useEffect(() => {
@@ -81,7 +100,7 @@ const FocusMode = () => {
         // User is trying to switch tabs or minimize
         setVisibilityEvents(prev => prev + 1);
         
-        // Pause video if playing
+        // Pause session
         setIsPlaying(false);
         
         // Show notification to bring them back
@@ -214,6 +233,71 @@ const FocusMode = () => {
     // Create embed URL with parameters for better focus (hide related videos, etc.)
     return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&autohide=1&showinfo=0`;
   };
+  
+  // Extract Vimeo ID from URL
+  const getVimeoEmbedUrl = () => {
+    if (!resource.url) return '';
+    
+    const vimeoIdMatch = resource.url.match(/vimeo\.com\/([0-9]+)/);
+    const vimeoId = vimeoIdMatch ? vimeoIdMatch[1] : '';
+    
+    return `https://player.vimeo.com/video/${vimeoId}?title=0&byline=0&portrait=0`;
+  };
+  
+  // Render appropriate content based on resource type
+  const renderResourceContent = () => {
+    if (resourceType === 'video') {
+      if (resource.url && resource.url.includes('youtube')) {
+        return (
+          <iframe 
+            ref={videoRef}
+            src={getYouTubeEmbedUrl()}
+            title={resource.title}
+            className="w-full aspect-video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        );
+      } else if (resource.url && resource.url.includes('vimeo')) {
+        return (
+          <iframe 
+            ref={videoRef}
+            src={getVimeoEmbedUrl()}
+            title={resource.title}
+            className="w-full aspect-video"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        );
+      }
+    } else if (resourceType === 'image') {
+      return (
+        <div className="flex items-center justify-center">
+          <img 
+            src={resource.thumbnail} 
+            alt={resource.title} 
+            className="max-h-[500px] object-contain"
+          />
+        </div>
+      );
+    }
+    
+    // Default or for article type, just show placeholder or empty
+    return (
+      <div className="aspect-video flex flex-col items-center justify-center bg-slate-800 p-6 text-center">
+        {resourceType === 'article' ? (
+          <FileText className="h-16 w-16 text-slate-600 mb-4" />
+        ) : (
+          <Eye className="h-16 w-16 text-slate-600 mb-4" />
+        )}
+        <p className="text-slate-400">
+          {resourceType === 'article' 
+            ? "Read the article content below" 
+            : "Content will display below"}
+        </p>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-white">
@@ -250,13 +334,15 @@ const FocusMode = () => {
             <span>{formatTime(focusDuration)}</span>
           </div>
           
-          <Button variant="ghost" size="icon" onClick={toggleMute}>
-            {isMuted ? (
-              <VolumeX className="h-5 w-5" />
-            ) : (
-              <Volume2 className="h-5 w-5" />
-            )}
-          </Button>
+          {resourceType === 'video' && (
+            <Button variant="ghost" size="icon" onClick={toggleMute}>
+              {isMuted ? (
+                <VolumeX className="h-5 w-5" />
+              ) : (
+                <Volume2 className="h-5 w-5" />
+              )}
+            </Button>
+          )}
           
           <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
             {isFullscreen ? (
@@ -321,6 +407,18 @@ const FocusMode = () => {
                 Start Focus Session
               </Button>
               
+              <div className="flex items-center justify-center gap-2 text-center p-4 bg-slate-800 rounded-lg">
+                {resourceType === 'video' && <Video className="h-5 w-5 text-blue-400" />}
+                {resourceType === 'article' && <FileText className="h-5 w-5 text-blue-400" />}
+                {resourceType === 'image' && <Image className="h-5 w-5 text-blue-400" />}
+                <p className="text-sm text-slate-400">
+                  {resourceType === 'video' && "You'll be focusing on a video resource"}
+                  {resourceType === 'article' && "You'll be focusing on an article resource"}
+                  {resourceType === 'image' && "You'll be focusing on an image resource"}
+                  {resourceType === 'other' && "You'll be focusing on a learning resource"}
+                </p>
+              </div>
+              
               <p className="text-xs text-slate-400 text-center">
                 You won't be able to switch tabs during this session.
                 We'll keep track of your focus time.
@@ -332,26 +430,12 @@ const FocusMode = () => {
         /* Main content area */
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-4xl mx-auto bg-slate-900 rounded-xl p-8">
-            {/* Video player and controls */}
+            {/* Content player and controls */}
             <div className="mb-8">
               <div className="rounded-lg overflow-hidden bg-black mb-4 relative">
-                {resource.url && resource.url.includes('youtube') ? (
-                  <iframe 
-                    ref={videoRef}
-                    src={getYouTubeEmbedUrl()}
-                    title={resource.title}
-                    className="w-full aspect-video"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                ) : (
-                  <div className="aspect-video flex items-center justify-center bg-slate-800">
-                    <Eye className="h-16 w-16 text-slate-600" />
-                    <p className="mt-4 text-slate-400">Video content unavailable</p>
-                  </div>
-                )}
+                {renderResourceContent()}
                 
-                {!isPlaying && (
+                {!isPlaying && resourceType === 'video' && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                     <Button 
                       size="icon" 
@@ -425,10 +509,28 @@ const FocusMode = () => {
                   <div dangerouslySetInnerHTML={{ __html: resource.content.replace(/\n/g, '<br>') }} />
                 ) : (
                   <div className="text-center py-10">
-                    <h3 className="text-xl font-medium mb-2">Focus on the video content</h3>
-                    <p className="text-slate-400 mb-6">
-                      Watch the entire video to earn points and complete this resource
-                    </p>
+                    {resourceType === 'article' ? (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2">Article not available</h3>
+                        <p className="text-slate-400 mb-6">
+                          This resource doesn't include article content.
+                        </p>
+                      </div>
+                    ) : resourceType === 'video' ? (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2">Focus on the video content</h3>
+                        <p className="text-slate-400 mb-6">
+                          Watch the entire video to earn points and complete this resource
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2">Focus on the learning material</h3>
+                        <p className="text-slate-400 mb-6">
+                          Stay engaged with this resource to earn points
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
