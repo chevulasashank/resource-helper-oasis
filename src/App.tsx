@@ -16,6 +16,7 @@ import HowItWorks from "./pages/HowItWorks";
 import SubmitResource from "./pages/SubmitResource";
 import Onboarding from "./pages/Onboarding";
 import FocusMode from "./pages/FocusMode";
+import StudentProfile from "./pages/StudentProfile";
 import { initializeUserFromStorage } from "./lib/data";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => {
             <Route path="/submit-resource" element={<SubmitResource />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/focus/:id" element={<FocusMode />} />
+            <Route path="/profile" element={<StudentProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
