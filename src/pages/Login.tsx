@@ -26,14 +26,8 @@ const Login = () => {
         duration: 3000,
       });
       
-      // Skip onboarding for existing users who have already completed it
-      // or are returning users (checking by completed resources)
-      if (!user.hasCompletedOnboarding && user.completedResources.length === 0) {
-        navigate('/onboarding');
-      } else {
-        // Always redirect to dashboard for returning users
-        navigate('/dashboard');
-      }
+      // Always redirect to dashboard and skip onboarding
+      navigate('/dashboard');
     } catch (err) {
       setError((err as Error).message || 'Login failed. Please try again.');
     } finally {

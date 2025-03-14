@@ -211,12 +211,12 @@ export const loginUser = (email: string, password: string): Promise<User> => {
           points: 120,
           completedResources: ['1', '3'],
           inProgressResources: ['2', '4'],
-          hasCompletedOnboarding: false,
-          learningGoals: [],
-          preferredCategories: [],
+          hasCompletedOnboarding: true,
+          learningGoals: ['skills', 'career'],
+          preferredCategories: ['JavaScript', 'React', 'Python'],
           skillLevel: 'beginner',
           weeklyHours: 5,
-          preferredFormats: []
+          preferredFormats: ['video', 'interactive']
         };
         currentUser = user;
         localStorage.setItem('currentUser', JSON.stringify(user));
@@ -239,12 +239,12 @@ export const registerUser = (email: string, password: string): Promise<User> => 
           points: 0,
           completedResources: [],
           inProgressResources: [],
-          hasCompletedOnboarding: false,
-          learningGoals: [],
-          preferredCategories: [],
+          hasCompletedOnboarding: true,
+          learningGoals: ['skills'],
+          preferredCategories: ['JavaScript'],
           skillLevel: 'beginner',
           weeklyHours: 5,
-          preferredFormats: []
+          preferredFormats: ['video']
         };
         currentUser = user;
         localStorage.setItem('currentUser', JSON.stringify(user));
@@ -304,7 +304,7 @@ export const saveUserPreferences = (preferences: Partial<User>): void => {
 };
 
 export const getPersonalizedResources = (): Resource[] => {
-  if (!currentUser || !currentUser.hasCompletedOnboarding) {
+  if (!currentUser) {
     return resources.filter(r => r.featured);
   }
   
