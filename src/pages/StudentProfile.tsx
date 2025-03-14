@@ -12,7 +12,8 @@ import {
   Calendar,
   ArrowLeft,
   Edit,
-  Save
+  Save,
+  Flame as FlameIcon
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -404,7 +405,7 @@ const StudentProfile = () => {
                         
                         <div className="border rounded-lg p-4 flex items-center">
                           <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-4">
-                            <Flame className="h-6 w-6" />
+                            <FlameIcon className="h-6 w-6" />
                           </div>
                           <div>
                             <h3 className="font-medium">On Fire</h3>
