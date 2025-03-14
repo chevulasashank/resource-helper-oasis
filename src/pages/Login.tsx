@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NavBar } from '@/components/NavBar';
@@ -27,10 +26,12 @@ const Login = () => {
         duration: 3000,
       });
       
-      if (!user.hasCompletedOnboarding) {
+      // Skip onboarding for existing users who have already completed it
+      // or are returning users (checking by completed resources)
+      if (!user.hasCompletedOnboarding && user.completedResources.length === 0) {
         navigate('/onboarding');
       } else {
-        // Redirect to dashboard but allow navigation to other pages
+        // Always redirect to dashboard for returning users
         navigate('/dashboard');
       }
     } catch (err) {
