@@ -1,21 +1,35 @@
 
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { NavBar } from '@/components/NavBar';
 import { resources, markResourceCompleted, markResourceInProgress, getCurrentUser } from '@/lib/data';
-import { Star, ArrowLeft, Clock, ExternalLink, Bookmark, CheckCircle, Lock } from 'lucide-react';
+import { Star, ArrowLeft, Clock, ExternalLink, Bookmark, CheckCircle, Lock, Focus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ResourceCard } from '@/components/ResourceCard';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter 
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 
 const Resource = () => {
   const { id } = useParams<{ id: string }>();
   const [resource, setResource] = useState(resources.find(r => r.id === id));
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(getCurrentUser());
+  const [focusDuration, setFocusDuration] = useState(15);
+  const [showFocusDialog, setShowFocusDialog] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const isCompleted = user?.completedResources.includes(id || '');
   const isInProgress = user?.inProgressResources.includes(id || '');
+  const isVideoResource = resource?.url && (resource.url.includes('youtube') || resource.url.includes('vimeo'));
   
   useEffect(() => {
     // Simulate loading
@@ -57,6 +71,19 @@ const Resource = () => {
       description: `You've earned ${resource?.points} points!`,
       duration: 3000,
     });
+  };
+
+  const startFocusMode = () => {
+    if (id) {
+      navigate(`/focus/${id}`);
+    }
+  };
+
+  const handleVideoClick = (e: React.MouseEvent) => {
+    if (isVideoResource) {
+      e.preventDefault();
+      setShowFocusDialog(true);
+    }
   };
   
   if (!resource) {
@@ -121,15 +148,36 @@ const Resource = () => {
             </p>
           </div>
           
-          <div className="rounded-xl overflow-hidden mb-10 bg-gray-100 relative animate-scale-in">
+          <div className="rounded-xl overflow-hidden mb-10 bg-gray-100 relative animate-scale-in" onClick={handleVideoClick}>
             {loading ? (
               <div className="aspect-video animate-pulse bg-gray-200 flex items-center justify-center">
                 <div className="w-10 h-10 rounded-full border-2 border-gray-300 border-t-transparent animate-spin"></div>
               </div>
+            ) : isVideoResource ? (
+              <>
+                <div className="aspect-video relative">
+                  <img 
+                    src={resource.thumbnail || `https://img.youtube.com/vi/${resource.url.split('v=')[1]}/maxresdefault.jpg`}
+                    alt={resource.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <Button 
+                      size="lg" 
+                      className="bg-purple-600 hover:bg-purple-700 rounded-full h-16 w-16 flex items-center justify-center"
+                    >
+                      <Lock className="h-8 w-8" />
+                    </Button>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-white">
+                    <p className="font-medium">Click to enter Focus Mode and start learning</p>
+                  </div>
+                </div>
+              </>
             ) : (
               <iframe
                 className="w-full aspect-video"
-                src={`https://www.youtube.com/embed/${resource.url.split('v=')[1]}`}
+                src={`https://www.youtube.com/embed/${resource.url?.split('v=')[1]}`}
                 title={resource.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -148,13 +196,13 @@ const Resource = () => {
               Open Original
             </a>
             
-            <Link 
-              to={`/focus/${resource.id}`}
+            <Button 
+              onClick={() => setShowFocusDialog(true)}
               className="flex-1 px-6 py-3 rounded-lg bg-purple-600 text-white font-medium transition-all duration-300 hover:bg-purple-700 text-center shadow-sm hover:shadow-md flex items-center justify-center gap-2"
             >
               <Lock className="w-4 h-4" />
               Start Focus Mode
-            </Link>
+            </Button>
             
             {isCompleted ? (
               <div className="flex-1 px-6 py-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-medium flex items-center justify-center gap-2">
@@ -199,6 +247,58 @@ const Resource = () => {
           </div>
         </div>
       </main>
+
+      {/* Focus Mode Setup Dialog */}
+      <Dialog open={showFocusDialog} onOpenChange={setShowFocusDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Prepare for Focus Mode</DialogTitle>
+            <DialogDescription>
+              Set up your focus session before starting the video. This helps you stay engaged and get the most out of your learning.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div className="space-y-2">
+              <h3 className="font-medium">Focus duration</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>15 min</span>
+                  <span>30 min</span>
+                  <span>45 min</span>
+                  <span>60 min</span>
+                </div>
+                <Slider
+                  min={15}
+                  max={60}
+                  step={15}
+                  defaultValue={[15]}
+                  onValueChange={(value) => setFocusDuration(value[0])}
+                />
+              </div>
+              <div className="mt-4 text-center p-3 bg-purple-50 rounded-lg">
+                <p className="text-2xl font-bold text-purple-600">{focusDuration} minutes</p>
+                <p className="text-sm text-gray-500">Selected focus duration</p>
+              </div>
+            </div>
+            
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <p className="text-sm text-amber-800">
+                <strong>Note:</strong> During focus mode, you won't be able to switch tabs. This helps you stay focused on your learning.
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowFocusDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={startFocusMode} className="bg-purple-600 hover:bg-purple-700">
+              Enter Focus Mode
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
