@@ -6,12 +6,17 @@ import { CategoryFilter } from '@/components/CategoryFilter';
 import { ResourceCard } from '@/components/ResourceCard';
 import { resources, categories } from '@/lib/data';
 import { Link } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const Directory = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [filteredResources, setFilteredResources] = useState(resources);
+  const { toast } = useToast();
   
   useEffect(() => {
     // Filter resources based on category and search term
@@ -32,6 +37,24 @@ const Directory = () => {
     
     setFilteredResources(filtered);
   }, [selectedCategory, searchTerm]);
+  
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchTerm(searchInput);
+    
+    if (searchInput.trim()) {
+      toast({
+        title: "Search results",
+        description: `Showing results for "${searchInput}"`,
+        duration: 3000,
+      });
+    }
+  };
+  
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setSearchTerm('');
+  };
   
   return (
     <div className="min-h-screen pb-20">
@@ -57,7 +80,38 @@ const Directory = () => {
           </div>
           
           <div className="mb-8 animate-slide-in">
-            <SearchBar onSearch={setSearchTerm} placeholder="Search by title, description or category..." />
+            <form onSubmit={handleSearchSubmit} className="flex gap-2">
+              <div className="relative flex-grow">
+                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                
+                <Input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="pl-10 py-6 bg-white shadow-sm border border-gray-200"
+                  placeholder="Search by title, description or category..."
+                />
+                
+                {searchInput && (
+                  <button
+                    type="button"
+                    onClick={handleClearSearch}
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
+                  >
+                    <span className="sr-only">Clear search</span>
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                Search
+              </Button>
+            </form>
           </div>
           
           <div className="mb-8 animate-slide-in" style={{ animationDelay: '0.1s' }}>
@@ -82,6 +136,7 @@ const Directory = () => {
               <button 
                 onClick={() => {
                   setSelectedCategory(null);
+                  setSearchInput('');
                   setSearchTerm('');
                 }}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
