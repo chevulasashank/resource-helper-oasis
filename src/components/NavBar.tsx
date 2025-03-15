@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, LogIn, User, Plus } from 'lucide-react';
+import { LogIn, User, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getCurrentUser } from '@/lib/data';
 
@@ -101,13 +101,6 @@ export function NavBar() {
         </div>
         
         <div className="flex items-center space-x-4">
-          <button 
-            className="p-2 rounded-full transition-colors hover:bg-gray-100"
-            aria-label="Search"
-          >
-            <Search className="w-5 h-5" />
-          </button>
-          
           {user ? (
             <div className="flex items-center space-x-3">
               <Link 
