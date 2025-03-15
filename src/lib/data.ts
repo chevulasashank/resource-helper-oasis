@@ -273,6 +273,38 @@ export const resources: Resource[] = [
   }
 ];
 
+export const addResource = (resource: Omit<Resource, 'id' | 'rating' | 'points'>): Resource => {
+  const newResource: Resource = {
+    ...resource,
+    id: (resources.length + 1).toString(),
+    rating: 0,
+    points: Math.floor(15 + Math.random() * 40)
+  };
+  
+  resources.push(newResource);
+  
+  localStorage.setItem('customResources', JSON.stringify(
+    JSON.parse(localStorage.getItem('customResources') || '[]').concat([newResource])
+  ));
+  
+  return newResource;
+};
+
+export const loadCustomResources = (): void => {
+  const customResources = JSON.parse(localStorage.getItem('customResources') || '[]');
+  
+  const existingIds = new Set(resources.map(r => r.id));
+  
+  customResources.forEach((resource: Resource) => {
+    if (!existingIds.has(resource.id)) {
+      resources.push(resource);
+      existingIds.add(resource.id);
+    }
+  });
+};
+
+loadCustomResources();
+
 export interface User {
   id: string;
   email: string;

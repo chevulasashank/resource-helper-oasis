@@ -1,8 +1,8 @@
-
 import { useState } from "react";
 import { Upload, X, Plus, Check, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { categories } from "@/lib/data";
+import { categories, addResource } from "@/lib/data";
+import { useNavigate } from "react-router-dom";
 
 interface ResourceSubmissionFormProps {
   onSubmitSuccess: () => void;
@@ -10,6 +10,7 @@ interface ResourceSubmissionFormProps {
 
 export function ResourceSubmissionForm({ onSubmitSuccess }: ResourceSubmissionFormProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -93,24 +94,34 @@ export function ResourceSubmissionForm({ onSubmitSuccess }: ResourceSubmissionFo
     if (validateForm()) {
       setIsLoading(true);
       
-      // Simulate API call
       try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        console.log("Resource submitted:", formData);
+        // Add the new resource using the function from data.ts
+        const newResource = addResource({
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          source: formData.source,
+          url: formData.url,
+          duration: formData.duration,
+          thumbnail: formData.thumbnailUrl
+        });
         
-        // In a real implementation, you would send this data to your backend
-        // const response = await fetch('/api/resources', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(formData)
-        // });
+        console.log("Resource added:", newResource);
         
+        toast({
+          title: "Resource added successfully",
+          description: "Your new resource has been added to the directory.",
+          variant: "default",
+        });
+        
+        // Call the success callback
         onSubmitSuccess();
+        
       } catch (error) {
-        console.error("Error submitting resource:", error);
+        console.error("Error adding resource:", error);
         toast({
           title: "Submission failed",
-          description: "There was an error submitting your resource. Please try again.",
+          description: "There was an error adding your resource. Please try again.",
           variant: "destructive",
         });
       } finally {
@@ -254,6 +265,21 @@ export function ResourceSubmissionForm({ onSubmitSuccess }: ResourceSubmissionFo
               placeholder="https://example.com/image.jpg"
             />
             {errors.thumbnailUrl && <p className="mt-1 text-sm text-red-500">{errors.thumbnailUrl}</p>}
+            
+            {formData.thumbnailUrl && (
+              <div className="mt-2">
+                <p className="text-sm text-gray-500 mb-1">Preview:</p>
+                <img 
+                  src={formData.thumbnailUrl} 
+                  alt="Thumbnail preview" 
+                  className="w-full max-w-xs h-auto rounded border border-gray-200"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder.svg';
+                    (e.target as HTMLImageElement).style.opacity = '0.5';
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -271,7 +297,7 @@ export function ResourceSubmissionForm({ onSubmitSuccess }: ResourceSubmissionFo
             <h3 className="text-sm font-medium text-blue-800">Submission Guidelines</h3>
             <div className="mt-2 text-sm text-blue-700">
               <ul className="list-disc pl-5 space-y-1">
-                <li>All submissions are reviewed by our team before being added to the directory</li>
+                <li>All submissions will be immediately added to your personal directory</li>
                 <li>Resources should be high-quality, educational content</li>
                 <li>Ensure the resource URL is correct and accessible</li>
                 <li>Provide an accurate description that helps learners understand what they'll gain</li>
