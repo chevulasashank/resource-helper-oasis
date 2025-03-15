@@ -8,7 +8,12 @@ export const categories = [
   'Business',
   'Mobile Development',
   'Cloud Computing',
-  'Machine Learning'
+  'Machine Learning',
+  'DevOps',
+  'Blockchain',
+  'Cybersecurity',
+  'Game Development',
+  'AI'
 ];
 
 export interface Resource {
@@ -168,6 +173,103 @@ export const resources: Resource[] = [
     source: 'YouTube',
     url: 'https://www.youtube.com/watch?v=C4t6qfHZ6Tw',
     points: 55
+  },
+  {
+    id: '11',
+    title: 'DevOps for Beginners: CI/CD Pipeline with GitHub Actions',
+    description: 'Learn how to set up continuous integration and continuous deployment pipelines using GitHub Actions. Perfect for developers wanting to automate their workflows.',
+    thumbnail: 'https://i.ytimg.com/vi/R8_veQiYBjI/maxresdefault.jpg',
+    category: 'DevOps',
+    duration: '1h 45m',
+    rating: 4.7,
+    source: 'YouTube',
+    url: 'https://www.youtube.com/watch?v=R8_veQiYBjI',
+    points: 40
+  },
+  {
+    id: '12',
+    title: 'Introduction to Blockchain Technology',
+    description: 'A comprehensive introduction to blockchain technology, cryptocurrencies, and smart contracts. Learn the fundamentals of decentralized systems.',
+    thumbnail: 'https://i.ytimg.com/vi/SSo_EIwHSd4/maxresdefault.jpg',
+    category: 'Blockchain',
+    duration: '2h 30m',
+    rating: 4.5,
+    source: 'Udemy',
+    url: 'https://www.udemy.com/course/blockchain-basics',
+    points: 50
+  },
+  {
+    id: '13',
+    title: 'Cybersecurity Fundamentals: Protecting Your Digital Life',
+    description: 'Learn essential cybersecurity practices to protect your personal information and digital assets from common threats and attacks.',
+    thumbnail: 'https://i.ytimg.com/vi/inWWhr5tnEA/maxresdefault.jpg',
+    category: 'Cybersecurity',
+    duration: '1h 20m',
+    rating: 4.8,
+    source: 'Coursera',
+    url: 'https://www.coursera.org/learn/cybersecurity-basics',
+    points: 35
+  },
+  {
+    id: '14',
+    title: 'Game Development with Unity: Complete 2D Game',
+    description: 'Build a complete 2D game from scratch using Unity game engine. Learn game physics, animations, and C# programming for game development.',
+    thumbnail: 'https://i.ytimg.com/vi/gB1F9G0JXOo/maxresdefault.jpg',
+    category: 'Game Development',
+    duration: '4h 15m',
+    rating: 4.9,
+    source: 'YouTube',
+    url: 'https://www.youtube.com/watch?v=gB1F9G0JXOo',
+    points: 70
+  },
+  {
+    id: '15',
+    title: 'AI Fundamentals: Understanding Machine Learning and Neural Networks',
+    description: 'An introduction to artificial intelligence concepts including machine learning algorithms, neural networks, and practical applications in everyday technologies.',
+    thumbnail: 'https://i.ytimg.com/vi/aircAruvnKk/maxresdefault.jpg',
+    category: 'AI',
+    duration: '2h 50m',
+    rating: 4.8,
+    source: 'edX',
+    url: 'https://www.edx.org/learn/artificial-intelligence',
+    points: 55,
+    featured: true
+  },
+  {
+    id: '16',
+    title: 'Advanced React Patterns and Best Practices',
+    description: 'Learn advanced React patterns including render props, custom hooks, context API, and performance optimization techniques for complex applications.',
+    thumbnail: 'https://i.ytimg.com/vi/bMknfKXIFA8/maxresdefault.jpg',
+    category: 'React',
+    duration: '3h 10m',
+    rating: 4.9,
+    source: 'Frontend Masters',
+    url: 'https://frontendmasters.com/courses/advanced-react-patterns/',
+    points: 65
+  },
+  {
+    id: '17',
+    title: 'Python for Data Analysis: Pandas Deep Dive',
+    description: 'Master data manipulation and analysis with Python using the pandas library. Learn to clean, transform, and visualize data effectively.',
+    thumbnail: 'https://i.ytimg.com/vi/vmEHCJofslg/maxresdefault.jpg',
+    category: 'Python',
+    duration: '2h 40m',
+    rating: 4.7,
+    source: 'DataCamp',
+    url: 'https://www.datacamp.com/courses/pandas-fundamentals',
+    points: 45
+  },
+  {
+    id: '18',
+    title: 'UX Research Methods: User Interviews and Usability Testing',
+    description: 'Learn effective techniques for conducting user interviews and usability testing to gather valuable insights for your design process.',
+    thumbnail: 'https://i.ytimg.com/vi/O94kYyzqvTc/maxresdefault.jpg',
+    category: 'UI/UX Design',
+    duration: '1h 55m',
+    rating: 4.6,
+    source: 'Interaction Design Foundation',
+    url: 'https://www.interaction-design.org/courses/user-research-methods',
+    points: 40
   }
 ];
 
