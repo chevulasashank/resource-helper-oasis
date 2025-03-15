@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NavBar } from '@/components/NavBar';
 import { ResourceCard } from '@/components/ResourceCard';
+import { FocusBarGraph } from '@/components/FocusBarGraph';
 import { getCurrentUser, resources, logoutUser, initializeUserFromStorage, getPersonalizedResources } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -233,6 +234,11 @@ const Dashboard = () => {
                 Last active: {lastActive ? new Date(lastActive).toLocaleDateString() : 'Today'}
               </p>
             </div>
+          </div>
+
+          {/* Focus Bar Graph */}
+          <div className="mb-10 animate-fade-in">
+            <FocusBarGraph className="mb-6" />
           </div>
 
           <div className="mb-10 animate-fade-in">
