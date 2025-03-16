@@ -7,14 +7,12 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  Legend, 
   ResponsiveContainer 
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
-import { Eye, Zap, Trophy, Bell } from 'lucide-react';
+import { Eye, Bell, Trophy } from 'lucide-react';
 
 // Mock data for the focus sessions
 const weeklyData = [
@@ -28,10 +26,10 @@ const weeklyData = [
 ];
 
 const monthlyData = [
-  { week: 'Week 1', focusMinutes: 200, distractions: 8, completedSessions: 5 },
-  { week: 'Week 2', focusMinutes: 250, distractions: 6, completedSessions: 7 },
-  { week: 'Week 3', focusMinutes: 180, distractions: 10, completedSessions: 4 },
-  { week: 'Week 4', focusMinutes: 300, distractions: 4, completedSessions: 9 },
+  { week: 'W1', focusMinutes: 200, distractions: 8, completedSessions: 5 },
+  { week: 'W2', focusMinutes: 250, distractions: 6, completedSessions: 7 },
+  { week: 'W3', focusMinutes: 180, distractions: 10, completedSessions: 4 },
+  { week: 'W4', focusMinutes: 300, distractions: 4, completedSessions: 9 },
 ];
 
 type FocusMetric = 'focusMinutes' | 'distractions' | 'completedSessions';
@@ -54,7 +52,7 @@ export function FocusBarGraph({ className }: FocusBarGraphProps) {
       case 'distractions':
         return 'Distractions';
       case 'completedSessions':
-        return 'Completed Sessions';
+        return 'Sessions';
     }
   };
 
@@ -69,121 +67,114 @@ export function FocusBarGraph({ className }: FocusBarGraphProps) {
     }
   };
 
-  const getMetricIcon = (metric: FocusMetric) => {
-    switch (metric) {
-      case 'focusMinutes':
-        return <Eye className="h-4 w-4" />;
-      case 'distractions':
-        return <Bell className="h-4 w-4" />;
-      case 'completedSessions':
-        return <Trophy className="h-4 w-4" />;
-    }
-  };
-
   return (
     <Card className={className}>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-0 px-4 pt-4">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base flex items-center">
-              <Eye className="mr-2 h-4 w-4 text-purple-600" />
-              Focus Analytics
+            <CardTitle className="text-sm flex items-center">
+              <Eye className="mr-1 h-3 w-3 text-purple-600" />
+              Focus Tracker
             </CardTitle>
             <CardDescription className="text-xs">
-              Focus sessions and distractions
+              {period === 'weekly' ? 'This week' : 'This month'}
             </CardDescription>
           </div>
-          <Tabs 
-            value={period} 
-            onValueChange={(v) => setPeriod(v as 'weekly' | 'monthly')}
-            className="w-auto"
-          >
-            <TabsList className="h-8 grid w-32 grid-cols-2">
-              <TabsTrigger value="weekly" className="text-xs">Weekly</TabsTrigger>
-              <TabsTrigger value="monthly" className="text-xs">Monthly</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="flex gap-1">
+            <button 
+              onClick={() => setPeriod('weekly')} 
+              className={`text-[10px] px-2 py-1 rounded ${period === 'weekly' ? 'bg-blue-100 text-blue-700' : 'text-gray-500'}`}
+            >
+              Week
+            </button>
+            <button 
+              onClick={() => setPeriod('monthly')} 
+              className={`text-[10px] px-2 py-1 rounded ${period === 'monthly' ? 'bg-blue-100 text-blue-700' : 'text-gray-500'}`}
+            >
+              Month
+            </button>
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="p-4">
-        <div className="space-y-4">
+      <CardContent className="p-3">
+        <div className="space-y-2">
           <ToggleGroup 
             type="single" 
             value={metric} 
             onValueChange={(value) => value && setMetric(value as FocusMetric)}
-            className="justify-start"
+            className="justify-start gap-1"
           >
-            <ToggleGroupItem value="focusMinutes" size="sm" className="flex items-center text-xs">
+            <ToggleGroupItem value="focusMinutes" size="sm" className="h-6 px-2 text-xs">
               <Eye className="mr-1 h-3 w-3" />
               Focus
             </ToggleGroupItem>
-            <ToggleGroupItem value="distractions" size="sm" className="flex items-center text-xs">
+            <ToggleGroupItem value="distractions" size="sm" className="h-6 px-2 text-xs">
               <Bell className="mr-1 h-3 w-3" />
               Distractions
             </ToggleGroupItem>
-            <ToggleGroupItem value="completedSessions" size="sm" className="flex items-center text-xs">
+            <ToggleGroupItem value="completedSessions" size="sm" className="h-6 px-2 text-xs">
               <Trophy className="mr-1 h-3 w-3" />
               Sessions
             </ToggleGroupItem>
           </ToggleGroup>
 
-          <div className="h-56">
+          <div className="h-32">
             <ChartContainer
               config={{
                 [metric]: { color: getMetricColor(metric) },
               }}
             >
-              <BarChart data={data} margin={{ top: 10, right: 5, left: -15, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey={xAxisKey} tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
+              <BarChart data={data} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+                <XAxis dataKey={xAxisKey} tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 9 }} tickLine={false} axisLine={false} width={20} />
                 <Tooltip content={<ChartTooltipContent />} />
                 <Bar 
                   dataKey={metric} 
                   name={getMetricLabel(metric)} 
                   fill={`var(--color-${metric})`}
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={50}
+                  radius={[3, 3, 0, 0]}
+                  maxBarSize={20}
                 />
               </BarChart>
             </ChartContainer>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            <div className="flex flex-col items-center justify-center p-2 bg-purple-50 rounded-lg">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 mb-1">
-                <Eye className="h-4 w-4" />
+          <div className="grid grid-cols-3 gap-1 mt-2">
+            <div className="flex items-center justify-between bg-purple-50 rounded p-1.5">
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center mr-1">
+                  <Eye className="h-2 w-2 text-purple-600" />
+                </div>
+                <span className="text-[9px] text-gray-500">Focus</span>
               </div>
-              <div className="text-center">
-                <p className="text-base font-bold text-purple-600">
-                  {data.reduce((sum, item) => sum + item.focusMinutes, 0)}
-                </p>
-                <p className="text-[10px] text-gray-500">Minutes Focused</p>
-              </div>
+              <p className="text-xs font-medium text-purple-600">
+                {data.reduce((sum, item) => sum + item.focusMinutes, 0)} min
+              </p>
             </div>
-
-            <div className="flex flex-col items-center justify-center p-2 bg-orange-50 rounded-lg">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 mb-1">
-                <Bell className="h-4 w-4" />
+            
+            <div className="flex items-center justify-between bg-orange-50 rounded p-1.5">
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-orange-100 flex items-center justify-center mr-1">
+                  <Bell className="h-2 w-2 text-orange-600" />
+                </div>
+                <span className="text-[9px] text-gray-500">Distract</span>
               </div>
-              <div className="text-center">
-                <p className="text-base font-bold text-orange-600">
-                  {data.reduce((sum, item) => sum + item.distractions, 0)}
-                </p>
-                <p className="text-[10px] text-gray-500">Distractions</p>
-              </div>
+              <p className="text-xs font-medium text-orange-600">
+                {data.reduce((sum, item) => sum + item.distractions, 0)}
+              </p>
             </div>
-
-            <div className="flex flex-col items-center justify-center p-2 bg-blue-50 rounded-lg">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 mb-1">
-                <Trophy className="h-4 w-4" />
+            
+            <div className="flex items-center justify-between bg-blue-50 rounded p-1.5">
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center mr-1">
+                  <Trophy className="h-2 w-2 text-blue-600" />
+                </div>
+                <span className="text-[9px] text-gray-500">Sessions</span>
               </div>
-              <div className="text-center">
-                <p className="text-base font-bold text-blue-600">
-                  {data.reduce((sum, item) => sum + item.completedSessions, 0)}
-                </p>
-                <p className="text-[10px] text-gray-500">Sessions</p>
-              </div>
+              <p className="text-xs font-medium text-blue-600">
+                {data.reduce((sum, item) => sum + item.completedSessions, 0)}
+              </p>
             </div>
           </div>
         </div>
