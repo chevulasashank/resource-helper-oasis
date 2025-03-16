@@ -7,12 +7,13 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer 
+  ResponsiveContainer,
+  Cell
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
-import { Eye, Bell, Trophy } from 'lucide-react';
+import { Eye, Bell, Trophy, Activity } from 'lucide-react';
 
 // Mock data for the focus sessions
 const weeklyData = [
@@ -67,114 +68,232 @@ export function FocusBarGraph({ className }: FocusBarGraphProps) {
     }
   };
 
+  const getBgColor = (metric: FocusMetric): string => {
+    switch (metric) {
+      case 'focusMinutes':
+        return 'bg-purple-50';
+      case 'distractions':
+        return 'bg-orange-50';
+      case 'completedSessions':
+        return 'bg-blue-50';
+    }
+  };
+  
+  const getTextColor = (metric: FocusMetric): string => {
+    switch (metric) {
+      case 'focusMinutes':
+        return 'text-purple-600';
+      case 'distractions':
+        return 'text-orange-600';
+      case 'completedSessions':
+        return 'text-blue-600';
+    }
+  };
+
+  const getIconBgColor = (metric: FocusMetric): string => {
+    switch (metric) {
+      case 'focusMinutes':
+        return 'bg-purple-100';
+      case 'distractions':
+        return 'bg-orange-100';
+      case 'completedSessions':
+        return 'bg-blue-100';
+    }
+  };
+
+  // Calculate metrics for the current period
+  const totalFocusMinutes = data.reduce((sum, item) => sum + item.focusMinutes, 0);
+  const totalDistractions = data.reduce((sum, item) => sum + item.distractions, 0);
+  const totalSessions = data.reduce((sum, item) => sum + item.completedSessions, 0);
+  
+  // Find the day with the most focus time
+  const bestFocusDay = [...data].sort((a, b) => b.focusMinutes - a.focusMinutes)[0];
+  
+  // Find the day with the least distractions
+  const leastDistractionDay = [...data].sort((a, b) => a.distractions - b.distractions)[0];
+
   return (
-    <Card className={className}>
-      <CardHeader className="pb-0 px-4 pt-4">
+    <Card className={`${className} overflow-hidden border-2 border-gray-100 hover:shadow-md transition-shadow`}>
+      <CardHeader className="pb-0 pt-3 px-4">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-sm flex items-center">
-              <Eye className="mr-1 h-3 w-3 text-purple-600" />
+            <CardTitle className="text-sm font-semibold flex items-center gap-1.5 text-gray-800">
+              <Activity className="h-4 w-4 text-purple-600" />
               Focus Tracker
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription className="text-xs mt-0.5">
               {period === 'weekly' ? 'This week' : 'This month'}
             </CardDescription>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 bg-gray-100 p-0.5 rounded-md">
             <button 
               onClick={() => setPeriod('weekly')} 
-              className={`text-[10px] px-2 py-1 rounded ${period === 'weekly' ? 'bg-blue-100 text-blue-700' : 'text-gray-500'}`}
+              className={`text-[10px] px-2 py-1 rounded-sm font-medium transition-colors ${
+                period === 'weekly' 
+                  ? 'bg-white text-gray-800 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
               Week
             </button>
             <button 
               onClick={() => setPeriod('monthly')} 
-              className={`text-[10px] px-2 py-1 rounded ${period === 'monthly' ? 'bg-blue-100 text-blue-700' : 'text-gray-500'}`}
+              className={`text-[10px] px-2 py-1 rounded-sm font-medium transition-colors ${
+                period === 'monthly' 
+                  ? 'bg-white text-gray-800 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
               Month
             </button>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="p-3">
-        <div className="space-y-2">
+
+        <div className="mt-3">
           <ToggleGroup 
             type="single" 
             value={metric} 
             onValueChange={(value) => value && setMetric(value as FocusMetric)}
-            className="justify-start gap-1"
+            className="justify-start gap-1 w-full bg-gray-50 p-1 rounded-md"
           >
-            <ToggleGroupItem value="focusMinutes" size="sm" className="h-6 px-2 text-xs">
+            <ToggleGroupItem 
+              value="focusMinutes" 
+              size="sm" 
+              className={`h-6 px-2 text-xs flex-1 ${metric === 'focusMinutes' ? 'bg-white ' + getTextColor('focusMinutes') : 'text-gray-600'}`}
+            >
               <Eye className="mr-1 h-3 w-3" />
               Focus
             </ToggleGroupItem>
-            <ToggleGroupItem value="distractions" size="sm" className="h-6 px-2 text-xs">
+            <ToggleGroupItem 
+              value="distractions" 
+              size="sm" 
+              className={`h-6 px-2 text-xs flex-1 ${metric === 'distractions' ? 'bg-white ' + getTextColor('distractions') : 'text-gray-600'}`}
+            >
               <Bell className="mr-1 h-3 w-3" />
               Distractions
             </ToggleGroupItem>
-            <ToggleGroupItem value="completedSessions" size="sm" className="h-6 px-2 text-xs">
+            <ToggleGroupItem 
+              value="completedSessions" 
+              size="sm" 
+              className={`h-6 px-2 text-xs flex-1 ${metric === 'completedSessions' ? 'bg-white ' + getTextColor('completedSessions') : 'text-gray-600'}`}
+            >
               <Trophy className="mr-1 h-3 w-3" />
               Sessions
             </ToggleGroupItem>
           </ToggleGroup>
+        </div>
+      </CardHeader>
 
-          <div className="h-32">
+      <CardContent className="p-0">
+        <div className="mt-1">
+          <div className="h-28 px-2">
             <ChartContainer
               config={{
                 [metric]: { color: getMetricColor(metric) },
               }}
             >
-              <BarChart data={data} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-                <XAxis dataKey={xAxisKey} tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 9 }} tickLine={false} axisLine={false} width={20} />
-                <Tooltip content={<ChartTooltipContent />} />
+              <BarChart 
+                data={data} 
+                margin={{ top: 5, right: 0, left: -20, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
+                <XAxis 
+                  dataKey={xAxisKey} 
+                  tick={{ fontSize: 10 }} 
+                  tickLine={false} 
+                  axisLine={false}
+                  dy={5}
+                />
+                <YAxis 
+                  tick={{ fontSize: 10 }} 
+                  tickLine={false} 
+                  axisLine={false} 
+                  width={20}
+                  dx={-5}
+                />
+                <Tooltip 
+                  content={<ChartTooltipContent />} 
+                  cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
+                />
                 <Bar 
                   dataKey={metric} 
                   name={getMetricLabel(metric)} 
-                  fill={`var(--color-${metric})`}
-                  radius={[3, 3, 0, 0]}
+                  radius={[4, 4, 0, 0]}
                   maxBarSize={20}
-                />
+                >
+                  {data.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`}
+                      fill={getMetricColor(metric)}
+                      fillOpacity={0.8}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ChartContainer>
           </div>
 
-          <div className="grid grid-cols-3 gap-1 mt-2">
-            <div className="flex items-center justify-between bg-purple-50 rounded p-1.5">
+          <div className="grid grid-cols-3 gap-1 px-3 pb-3 mt-1">
+            <div className={`flex items-center justify-between ${getBgColor('focusMinutes')} rounded p-1.5`}>
               <div className="flex items-center">
-                <div className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center mr-1">
-                  <Eye className="h-2 w-2 text-purple-600" />
+                <div className={`w-4 h-4 rounded-full ${getIconBgColor('focusMinutes')} flex items-center justify-center mr-1`}>
+                  <Eye className={`h-2 w-2 ${getTextColor('focusMinutes')}`} />
                 </div>
                 <span className="text-[9px] text-gray-500">Focus</span>
               </div>
-              <p className="text-xs font-medium text-purple-600">
-                {data.reduce((sum, item) => sum + item.focusMinutes, 0)} min
+              <p className={`text-xs font-medium ${getTextColor('focusMinutes')}`}>
+                {totalFocusMinutes} min
               </p>
             </div>
             
-            <div className="flex items-center justify-between bg-orange-50 rounded p-1.5">
+            <div className={`flex items-center justify-between ${getBgColor('distractions')} rounded p-1.5`}>
               <div className="flex items-center">
-                <div className="w-4 h-4 rounded-full bg-orange-100 flex items-center justify-center mr-1">
-                  <Bell className="h-2 w-2 text-orange-600" />
+                <div className={`w-4 h-4 rounded-full ${getIconBgColor('distractions')} flex items-center justify-center mr-1`}>
+                  <Bell className={`h-2 w-2 ${getTextColor('distractions')}`} />
                 </div>
                 <span className="text-[9px] text-gray-500">Distract</span>
               </div>
-              <p className="text-xs font-medium text-orange-600">
-                {data.reduce((sum, item) => sum + item.distractions, 0)}
+              <p className={`text-xs font-medium ${getTextColor('distractions')}`}>
+                {totalDistractions}
               </p>
             </div>
             
-            <div className="flex items-center justify-between bg-blue-50 rounded p-1.5">
+            <div className={`flex items-center justify-between ${getBgColor('completedSessions')} rounded p-1.5`}>
               <div className="flex items-center">
-                <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center mr-1">
-                  <Trophy className="h-2 w-2 text-blue-600" />
+                <div className={`w-4 h-4 rounded-full ${getIconBgColor('completedSessions')} flex items-center justify-center mr-1`}>
+                  <Trophy className={`h-2 w-2 ${getTextColor('completedSessions')}`} />
                 </div>
                 <span className="text-[9px] text-gray-500">Sessions</span>
               </div>
-              <p className="text-xs font-medium text-blue-600">
-                {data.reduce((sum, item) => sum + item.completedSessions, 0)}
+              <p className={`text-xs font-medium ${getTextColor('completedSessions')}`}>
+                {totalSessions}
               </p>
+            </div>
+          </div>
+
+          <div className="px-3 pb-3 border-t border-gray-100 pt-2">
+            <div className="flex items-center justify-between text-xs">
+              <div className="text-gray-500 flex items-center">
+                <Activity className="h-3 w-3 mr-1 text-purple-600" />
+                <span>Key Insights:</span>
+              </div>
+              <span className="text-[9px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                {period === 'weekly' ? '7-day analysis' : '4-week analysis'}
+              </span>
+            </div>
+            <div className="mt-1.5 grid grid-cols-2 gap-2">
+              <div className="bg-gray-50 p-1.5 rounded text-[9px]">
+                <span className="text-gray-500">Best focus day:</span>
+                <p className="font-medium text-purple-600">
+                  {bestFocusDay[xAxisKey]} ({bestFocusDay.focusMinutes} min)
+                </p>
+              </div>
+              <div className="bg-gray-50 p-1.5 rounded text-[9px]">
+                <span className="text-gray-500">Least distractions:</span>
+                <p className="font-medium text-orange-600">
+                  {leastDistractionDay[xAxisKey]} ({leastDistractionDay.distractions})
+                </p>
+              </div>
             </div>
           </div>
         </div>

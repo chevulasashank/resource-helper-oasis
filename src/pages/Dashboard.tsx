@@ -18,7 +18,8 @@ import {
   Calendar,
   ArrowRight,
   Lock,
-  User
+  User,
+  BarChart4
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -122,7 +123,7 @@ const Dashboard = () => {
   const completedPercentage = Math.round((completedResources.length / totalResources) * 100);
   
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-20 bg-white">
       <NavBar />
       
       <main className="pt-24">
@@ -130,8 +131,10 @@ const Dashboard = () => {
           <div className="flex flex-wrap items-start justify-between mb-10 animate-fade-in">
             <div>
               <div className="flex items-center mb-2">
-                <LayoutDashboard className="mr-2 h-6 w-6 text-blue-600" />
-                <h1 className="text-3xl font-bold">Learning Dashboard</h1>
+                <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-blue-50 text-blue-600 mr-3">
+                  <LayoutDashboard className="h-5 w-5" />
+                </div>
+                <h1 className="text-3xl font-bold text-gray-900">Learning Dashboard</h1>
               </div>
               <p className="text-gray-500">
                 Track your progress and continue your learning journey
@@ -158,46 +161,56 @@ const Dashboard = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            <div className="glass p-6 rounded-xl animate-scale-in" style={{ animationDelay: '0.1s' }}>
+            <div className="glass p-6 rounded-xl shadow-sm border-2 border-gray-100 animate-scale-in" style={{ animationDelay: '0.1s' }}>
               <div className="flex items-center mb-4">
-                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
                   <BookOpen className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-medium">Total Points</h3>
-                  <p className="text-2xl font-bold">{user.points}</p>
+                  <h3 className="font-medium text-gray-700">Total Points</h3>
+                  <p className="text-2xl font-bold text-gray-900">{user.points}</p>
                 </div>
               </div>
-              <Progress value={(user.points / 500) * 100} className="h-2" />
-              <p className="mt-2 text-xs text-gray-500">
-                {500 - user.points} points until next level
-              </p>
+              <Progress value={(user.points / 500) * 100} className="h-2 bg-blue-100" />
+              <div className="mt-2 flex justify-between items-center">
+                <p className="text-xs text-gray-500">
+                  {500 - user.points} points until next level
+                </p>
+                <span className="text-xs font-medium bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">
+                  {Math.round((user.points / 500) * 100)}% Complete
+                </span>
+              </div>
             </div>
             
-            <div className="glass p-6 rounded-xl animate-scale-in" style={{ animationDelay: '0.2s' }}>
+            <div className="glass p-6 rounded-xl shadow-sm border-2 border-gray-100 animate-scale-in" style={{ animationDelay: '0.2s' }}>
               <div className="flex items-center mb-4">
-                <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3">
+                <div className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center text-green-600 mr-3">
                   <CheckCheck className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-medium">Completed</h3>
-                  <p className="text-2xl font-bold">{completedResources.length}</p>
+                  <h3 className="font-medium text-gray-700">Completed</h3>
+                  <p className="text-2xl font-bold text-gray-900">{completedResources.length}</p>
                 </div>
               </div>
-              <Progress value={completedPercentage} className="h-2" />
-              <p className="mt-2 text-xs text-gray-500">
-                {completedPercentage}% of all resources
-              </p>
+              <Progress value={completedPercentage} className="h-2 bg-green-100" />
+              <div className="mt-2 flex justify-between items-center">
+                <p className="text-xs text-gray-500">
+                  Total resources
+                </p>
+                <span className="text-xs font-medium bg-green-50 text-green-600 px-2 py-0.5 rounded-full">
+                  {completedPercentage}% Complete
+                </span>
+              </div>
             </div>
             
-            <div className="glass p-6 rounded-xl animate-scale-in" style={{ animationDelay: '0.3s' }}>
+            <div className="glass p-6 rounded-xl shadow-sm border-2 border-gray-100 animate-scale-in" style={{ animationDelay: '0.3s' }}>
               <div className="flex items-center mb-4">
-                <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 mr-3">
+                <div className="h-10 w-10 rounded-xl bg-yellow-100 flex items-center justify-center text-yellow-600 mr-3">
                   <Clock className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-medium">In Progress</h3>
-                  <p className="text-2xl font-bold">{inProgressResources.length}</p>
+                  <h3 className="font-medium text-gray-700">In Progress</h3>
+                  <p className="text-2xl font-bold text-gray-900">{inProgressResources.length}</p>
                 </div>
               </div>
               <Link 
@@ -205,17 +218,18 @@ const Dashboard = () => {
                 className="mt-4 text-sm text-blue-600 hover:text-blue-700 transition-colors flex items-center"
               >
                 Explore more resources
+                <ArrowRight className="ml-1 h-3 w-3" />
               </Link>
             </div>
 
-            <div className="glass p-6 rounded-xl animate-scale-in" style={{ animationDelay: '0.4s' }}>
+            <div className="glass p-6 rounded-xl shadow-sm border-2 border-gray-100 animate-scale-in" style={{ animationDelay: '0.4s' }}>
               <div className="flex items-center mb-4">
-                <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 mr-3">
+                <div className="h-10 w-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600 mr-3">
                   <Flame className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-medium">Current Streak</h3>
-                  <p className="text-2xl font-bold">{currentStreak} days</p>
+                  <h3 className="font-medium text-gray-700">Current Streak</h3>
+                  <p className="text-2xl font-bold text-gray-900">{currentStreak} days</p>
                 </div>
               </div>
               <div className="flex justify-between mt-2">
@@ -223,7 +237,9 @@ const Dashboard = () => {
                   <div 
                     key={index} 
                     className={`h-6 w-6 rounded-full flex items-center justify-center text-xs ${
-                      index < currentStreak % 7 ? 'bg-red-500 text-white' : 'bg-gray-200'
+                      index < currentStreak % 7 
+                        ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-sm' 
+                        : 'bg-gray-100 text-gray-400'
                     }`}
                   >
                     {index + 1}
@@ -236,61 +252,124 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Focus Bar Graph */}
-          <div className="mb-10 animate-fade-in">
-            <FocusBarGraph className="mb-6" />
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            {/* Focus Bar Graph - Left Column */}
+            <div className="md:col-span-1 animate-fade-in">
+              <FocusBarGraph className="h-full" />
+            </div>
 
-          <div className="mb-10 animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <Target className="mr-2 h-5 w-5 text-blue-600" />
-              Your Learning Plan
-            </h2>
-            
-            <div className="glass rounded-xl p-6 mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="font-medium text-lg">Weekly Learning Goals</h3>
-                  <p className="text-gray-500 text-sm">Based on your preferences ({user.weeklyHours} hours/week)</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium">Progress this week</p>
-                  <p className="text-lg font-bold text-blue-600">2/{user.weeklyHours} hours</p>
-                </div>
-              </div>
-              
-              <Progress value={(2 / user.weeklyHours) * 100} className="h-2 mb-4" />
-              
-              <div className="grid grid-cols-7 gap-2 mb-4">
-                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-xs text-gray-500">{day}</div>
-                    <div className={`h-8 w-8 mx-auto rounded-full flex items-center justify-center text-xs ${
-                      index < 2 ? 'bg-green-100 text-green-600' : 'bg-gray-100'
-                    }`}>
-                      {index < 2 ? <CheckCheck className="h-4 w-4" /> : ''}
+            {/* Learning Plan - Right Column (spans 2) */}
+            <div className="md:col-span-2 animate-fade-in">
+              <div className="flex flex-col h-full">
+                <h2 className="text-xl font-bold mb-4 flex items-center text-gray-900">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-blue-50 text-blue-600 mr-2">
+                    <Target className="h-4 w-4" />
+                  </div>
+                  Your Learning Plan
+                </h2>
+                
+                <div className="glass rounded-xl p-6 mb-4 border-2 border-gray-100 shadow-sm flex-grow">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                    <div>
+                      <h3 className="font-semibold text-lg text-gray-800">Weekly Learning Goals</h3>
+                      <p className="text-gray-500 text-sm">Based on your preferences ({user.weeklyHours} hours/week)</p>
+                    </div>
+                    <div className="mt-2 md:mt-0 md:text-right">
+                      <div className="inline-flex items-center px-3 py-1 bg-blue-50 rounded-full">
+                        <BarChart4 className="text-blue-600 h-3 w-3 mr-1" />
+                        <p className="text-sm font-medium text-gray-700">Progress this week</p>
+                      </div>
+                      <p className="text-lg font-bold text-blue-600 mt-1">
+                        <span className="text-2xl">2</span>/{user.weeklyHours} hours
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-              
-              <div className="text-right">
-                <Link 
-                  to="/calendar" 
-                  className="text-sm text-blue-600 hover:text-blue-700 transition-colors flex items-center justify-end"
-                >
-                  <Calendar className="h-4 w-4 mr-1" />
-                  View full calendar
-                </Link>
+                  
+                  <Progress 
+                    value={(2 / user.weeklyHours) * 100} 
+                    className="h-3 mb-6 bg-blue-100" 
+                  />
+                  
+                  <div className="grid grid-cols-7 gap-2 mb-4">
+                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
+                      <div key={index} className="text-center">
+                        <div className="text-xs font-medium text-gray-700">{day}</div>
+                        <div className={`h-10 w-10 mx-auto rounded-lg flex items-center justify-center text-sm shadow-sm ${
+                          index < 2 
+                            ? 'bg-gradient-to-br from-green-500 to-green-600 text-white' 
+                            : 'bg-gray-100 text-gray-400'
+                        }`}>
+                          {index < 2 ? <CheckCheck className="h-5 w-5" /> : ''}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                    <div>
+                      <h4 className="font-medium text-gray-700">This Week's Focus</h4>
+                      <p className="text-sm text-gray-500">Web Development Fundamentals</p>
+                    </div>
+                    <Link 
+                      to="/calendar" 
+                      className="flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                    >
+                      <Calendar className="h-4 w-4 mr-1" />
+                      View Calendar
+                    </Link>
+                  </div>
+                </div>
+                
+                <div className="glass rounded-xl p-5 border-2 border-gray-100 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-gray-800">Upcoming Sessions</h3>
+                    <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">This Week</span>
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { day: 'Thursday', time: '3:00 PM', topic: 'JavaScript Basics' },
+                      { day: 'Friday', time: '4:30 PM', topic: 'CSS Layouts' }
+                    ].map((session, idx) => (
+                      <div key={idx} className="flex items-center p-2 bg-gray-50 rounded-lg">
+                        <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                          <Clock className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-800">{session.topic}</p>
+                          <p className="text-xs text-gray-500">{session.day} at {session.time}</p>
+                        </div>
+                        <Button variant="ghost" size="sm" className="px-2 h-8">
+                          <Lock className="h-3.5 w-3.5 mr-1" />
+                          Focus
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           
           <Tabs defaultValue="recommended" className="mb-10 animate-fade-in">
-            <TabsList className="mb-6">
-              <TabsTrigger value="recommended">Recommended</TabsTrigger>
-              <TabsTrigger value="in-progress">In Progress</TabsTrigger>
-              <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsList className="mb-6 bg-gray-100 p-1 border border-gray-200">
+              <TabsTrigger 
+                value="recommended" 
+                className="data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              >
+                Recommended
+              </TabsTrigger>
+              <TabsTrigger 
+                value="in-progress"
+                className="data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              >
+                In Progress
+              </TabsTrigger>
+              <TabsTrigger 
+                value="completed"
+                className="data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              >
+                Completed
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="recommended">
